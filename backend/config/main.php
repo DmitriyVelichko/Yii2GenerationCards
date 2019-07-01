@@ -10,11 +10,15 @@ $config = [
     'id' => 'app-backend',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log','gii'],
     'homeUrl' => '/admin',
     'modules' => [
-        'admin' => [
-            'class' => 'backend\modules\admin\Module',
+        'cards' => [
+            'class' => 'backend\modules\cards\Cards',
+            'defaultRoute' => 'cards/index'
+        ],
+        'gii' => [
+            'class' => 'yii\gii\Module',
         ],
     ],
     'components' => [
@@ -47,7 +51,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-
+                
             ],
         ],
     ],

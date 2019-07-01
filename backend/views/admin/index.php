@@ -1,3 +1,0 @@
-<code>
-    Hello, backend!
-</code>

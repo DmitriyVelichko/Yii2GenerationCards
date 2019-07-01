@@ -1,10 +1,10 @@
 <?php
 
-namespace backend\modules\admin\controllers;
+namespace backend\modules\cards\controllers;
 
 use Yii;
-use backend\modules\admin\models\Cards;
-use yii\data\ActiveDataProvider;
+use backend\modules\cards\models\Cards;
+use backend\modules\cards\models\CardsSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -35,11 +35,11 @@ class CardsController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = new ActiveDataProvider([
-            'query' => Cards::find(),
-        ]);
+        $searchModel = new CardsSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
     }

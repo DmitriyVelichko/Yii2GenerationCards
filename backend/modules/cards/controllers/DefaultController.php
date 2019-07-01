@@ -1,11 +1,11 @@
 <?php
 
-namespace backend\modules\admin\controllers;
+namespace backend\modules\cards\controllers;
 
 use yii\web\Controller;
 
 /**
- * Default controller for the `admin` module
+ * Default controller for the `cards` module
  */
 class DefaultController extends Controller
 {

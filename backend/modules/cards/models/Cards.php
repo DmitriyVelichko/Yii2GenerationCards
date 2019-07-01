@@ -1,9 +1,8 @@
 <?php
 
-namespace backend\modules\admin\models;
+namespace backend\modules\cards\models;
 
 use Yii;
-use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "cards".
@@ -14,7 +13,7 @@ use yii\db\ActiveRecord;
  * @property string $image
  * @property int $countsViews
  */
-class Cards extends ActiveRecord
+class Cards extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}

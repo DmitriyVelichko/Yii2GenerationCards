@@ -3,7 +3,7 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model backend\modules\admin\models\Cards */
+/* @var $model backend\modules\cards\models\Cards */
 
 $this->title = 'Update Cards: ' . $model->name;
 $this->params['breadcrumbs'][] = ['label' => 'Cards', 'url' => ['index']];
