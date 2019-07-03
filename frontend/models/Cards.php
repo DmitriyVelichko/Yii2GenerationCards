@@ -1,6 +1,6 @@
 <?php
 
-namespace backend\modules\cards\models;
+namespace frontend\models;
 
 use Yii;
 use yii\data\Pagination;
@@ -19,6 +19,7 @@ use common\interfaces\iCardsFront;
 class Cards extends ActiveRecord implements iCardsFront
 {
     public $pages;
+    public $count;
 
     /**
      * {@inheritdoc}
@@ -69,8 +70,8 @@ class Cards extends ActiveRecord implements iCardsFront
         }
         $query->orderBy('id DESC');
 
-        if($count = $query->count()){
-            $this->pages = $this->getPagination($count,$limit);
+        if($this->count = $query->count()){
+            $this->pages = $this->getPagination($this->count,$limit);
         }
 
         $cards = $query->offset($this->pages->offset)->limit($this->pages->limit)->all();
@@ -93,7 +94,12 @@ class Cards extends ActiveRecord implements iCardsFront
         return $this->pages;
     }
 
-    public function getbyId($id)
+    public function getCount()
+    {
+        return $this->count;
+    }
+
+    public function getById($id)
     {
         return Cards::findOne($id);
     }

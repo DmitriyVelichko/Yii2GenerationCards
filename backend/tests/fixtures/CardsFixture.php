@@ -1,7 +1,10 @@
 <?php
 
+namespace backend\test\fixtures;
 
-class CardsFixture
+use yii\test\ActiveFixture;
+
+class CardsFixture extends ActiveFixture
 {
-
+    public $modelClass = 'backend\models\Cards';
 }

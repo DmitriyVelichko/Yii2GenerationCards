@@ -7,7 +7,7 @@ $this->title = 'My Yii Application';
 <div class="site-index">
 
     <div class="jumbotron">
-        <h1>Главная</h1>
+        <h1>Админка</h1>
 
         <p class="lead">Вы можете перейти на страницу редактирования и создания карточек:</p>
 

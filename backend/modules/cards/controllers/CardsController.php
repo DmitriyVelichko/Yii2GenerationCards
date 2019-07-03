@@ -14,6 +14,14 @@ use yii\filters\VerbFilter;
  */
 class CardsController extends Controller
 {
+    public $model;
+
+    public function __construct($id, $module, $config = [])
+    {
+        parent::__construct($id, $module, $config);
+        $this->model = new Cards();
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -35,8 +43,8 @@ class CardsController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new CardsSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = $this->model->findAllRows();
+        $searchModel = $this->model->getSearchModel();
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -53,7 +61,7 @@ class CardsController extends Controller
     public function actionView($id)
     {
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $this->model->findModel($id),
         ]);
     }
 
@@ -64,14 +72,12 @@ class CardsController extends Controller
      */
     public function actionCreate()
     {
-        $model = new Cards();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->model->createRow()) {
+            return $this->redirect(['view', 'id' => $this->model->id]);
         }
 
         return $this->render('create', [
-            'model' => $model,
+            'model' => $this->model,
         ]);
     }
 
@@ -84,9 +90,10 @@ class CardsController extends Controller
      */
     public function actionUpdate($id)
     {
-        $model = $this->findModel($id);
+        $result = $this->model->updateRow($id);
+        $model = $result['model'];
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        if ($result['status']) {
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
@@ -104,24 +111,8 @@ class CardsController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $this->model->deleteRow($id);
 
         return $this->redirect(['index']);
-    }
-
-    /**
-     * Finds the Cards model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Cards the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Cards::findOne($id)) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
     }
 }

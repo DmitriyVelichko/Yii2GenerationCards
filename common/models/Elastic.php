@@ -4,7 +4,7 @@ namespace common\models;
 
 use yii\elasticsearch\ActiveRecord;
 
-class Cards extends ActiveRecord
+class Elastic extends ActiveRecord
 {
     public function attributes()
     {

@@ -17,7 +17,7 @@ class m190701_184434_create_cards_table extends Migration
             'name' => $this->string(50)->notNull()->defaultValue(''),
             'description' => $this->string(500)->notNull()->defaultValue(''),
             'image' => $this->string(500)->notNull()->defaultValue(''),
-            'countsViews' => $this->integer(11)->notNull()->defaultValue(0),
+            'countsViews' => $this->integer(11)->defaultValue(0),
         ]);
     }
 
