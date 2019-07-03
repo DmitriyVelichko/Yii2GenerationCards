@@ -2,65 +2,102 @@
 
 namespace common\controllers;
 
-use yii\base\Controller;
-use common\models\Elastic;
+use Elasticsearch\ClientBuilder;
 
-class ElasticController extends Controller
+class ElasticController
 {
-    public function actionIndex()
+    protected $client;
+
+    public function __construct()
     {
-        $elastic = new Elastic();
-
-        foreach ($_POST as $field => $value){
-            if(!empty($field) && !empty($value)){
-                $elastic->$field = $value;
-            }
-        }
-
-        if($elastic->insert()){
-//            echo 'exist index';
-        } else {
-            print_r($elastic);
-        }
+        $this->client = ClientBuilder::create()->build();
     }
 
-    public function actionFind()
+    public function actionCreateDocument($index, $id, $data)
     {
-        $data = [];
+        $params = [
+            'index' => $index,
+            'id' => $id,
+            'body' => $data
+        ];
 
-        if(isset($_GET['q'])){
-            $elastic = new Elastic();
-            $q = $_GET['q'];
+        return $this->client->index($params);
+    }
 
-            $query = $elastic->findAll([
-                'body' => [
-                    'query' => [
-                        'bool' => [
-                            'should' => [
-                                'match' => ['name' => $q],
-                                'match' => ['description' => $q]
-                            ]
-                        ]
-                    ]
+    public function actionUpdateDocument($index,$id,$data)
+    {
+        $params = [
+            'index' => $index,
+            'id'    => $id,
+            'body'  => [
+                'doc' => $data
+            ]
+        ];
+
+        return $this->client->update($params);
+    }
+
+    public function actionDeleteDocument($index, $id)
+    {
+        $params = [
+            'index' => $index,
+            'id' => $id
+        ];
+
+        return $this->client->delete($params);
+    }
+
+    /**
+     * @param $index
+     * @param array $settings
+     * @return array|callable
+     */
+    public function actionCreateIndex($index, array $settings)
+    {
+        $params = [
+            'index' => $index,
+            'body' => [
+                'settings' => $settings
+            ]
+        ];
+
+        return $this->client->indices()->create($params);
+    }
+
+    public function actionDeleteIndex($index)
+    {
+        $deleteParams = [
+            'index' => $index
+        ];
+        return $this->client->indices()->delete($deleteParams);
+    }
+
+    public function actionGetDocument($index, $id)
+    {
+        $params = [
+            'index' => $index,
+            'id' => $id
+        ];
+
+        return $this->client->get($params);
+    }
+
+    /**
+     * @param $index
+     * @param array $match ['field' => 'value','field' => 'value', ...]
+     * @return array|callable
+     */
+    public function actionSearchDocument($index, array $match)
+    {
+        $params = [
+            'index' => $index,
+            'body' => [
+                'query' => [
+                    'match' => $match
                 ]
-            ]);
+            ]
+        ];
 
-            if($query['hits']['total'] >= 1){
-                $results = $query['hits']['hits'];
-            }
-
-            if(isset($results)){
-                foreach ($results as $r){
-                    $data[]['id'] = $r['_id'];
-                    $data[]['name'] = $r['_source']['name'];
-                    $data[]['description'] = $r['_source']['description'];
-                    $data[]['image'] = $r['_source']['image'];
-                    $data[]['countsViews'] = $r['_source']['countsViews'];
-                }
-            }
-
-        }
-
-        return $data;
+        return $this->client->search($params);
     }
 }

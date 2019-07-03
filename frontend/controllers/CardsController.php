@@ -5,11 +5,13 @@ namespace frontend\controllers;
 use Yii;
 use yii\web\HttpException;
 use frontend\models\Cards;
+use common\controllers\ElasticController;
 
 class CardsController extends MainController
 {
     public $model;
     public $limit = 6;
+    public $elastic;
 
     public function __construct($id, $module, $config = [])
     {

@@ -5,8 +5,9 @@ namespace backend\modules\cards\models;
 use Yii;
 use \yii\db\ActiveRecord;
 use common\interfaces\iCardsBack;
-use common\models\Elastic;
+use common\controllers\ElasticController;
 use yii\web\NotFoundHttpException;
+
 
 /**
  * This is the model class for table "cards".
@@ -21,10 +22,12 @@ class Cards extends ActiveRecord implements iCardsBack
 {
     public $pages;
     public $searchModel;
+    public $elastic;
 
     public function __construct($config = [])
     {
         parent::__construct($config);
+        $this->elastic = new ElasticController();
     }
 
     /**
@@ -82,7 +85,7 @@ class Cards extends ActiveRecord implements iCardsBack
             $id = Yii::$app->db->lastInsertID;
 
             if(!empty($id) && !empty($data)){
-                Elastic::createIndex();
+                $this->elastic->actionCreateDocument('cards',$id,$data);
             }
 
             return true;
@@ -99,7 +102,7 @@ class Cards extends ActiveRecord implements iCardsBack
             $data = Yii::$app->request->post()['Cards'];
 
             if(!empty($id) && !empty($data)){
-               Elastic::updateMapping();
+                $this->elastic->actionUpdateDocument('cards',$id,$data);
             }
 
             return [
@@ -116,6 +119,7 @@ class Cards extends ActiveRecord implements iCardsBack
 
     public function deleteRow($id)
     {
+        $this->elastic->actionDeleteDocument('cards',$id);
         return Cards::findOne($id)->delete();
     }
 
