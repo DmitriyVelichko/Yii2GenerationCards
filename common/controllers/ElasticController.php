@@ -100,4 +100,12 @@ class ElasticController
 
         return $this->client->search($params);
     }
+
+    public function getAllIndexes($index)
+    {
+        $params = [
+            'index' => $index
+        ];
+        return $this->client->search($params);
+    }
 }

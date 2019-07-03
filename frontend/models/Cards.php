@@ -2,6 +2,7 @@
 
 namespace frontend\models;
 
+use common\controllers\ElasticController;
 use Yii;
 use yii\data\Pagination;
 use \yii\db\ActiveRecord;
@@ -20,6 +21,13 @@ class Cards extends ActiveRecord implements iCardsFront
 {
     public $pages;
     public $count;
+    public $elastic;
+
+    public function __construct($config = [])
+    {
+        parent::__construct($config);
+        $this->elastic = new ElasticController();
+    }
 
     /**
      * {@inheritdoc}
@@ -70,13 +78,43 @@ class Cards extends ActiveRecord implements iCardsFront
         }
         $query->orderBy('id DESC');
 
+        //Подключил сюда поиск через эластик, если он не работает то сработает обычный поиск
+        $cards = $this->getElasticLastRow();
+
         if($this->count = $query->count()){
+            $this->count = count($cards);
             $this->pages = $this->getPagination($this->count,$limit);
         }
 
-        $cards = $query->offset($this->pages->offset)->limit($this->pages->limit)->all();
+        if(empty($cards)){
+            $cards = $query->offset($this->pages->offset)->limit($this->pages->limit)->all();
+        }
 
         return $cards;
+    }
+
+    public function getElasticLastRow(){
+        $data = [];
+        $elasticSearch = $this->elastic->getAllIndexes('cards');
+        foreach ($elasticSearch['hits']['hits'] as $index => $rows){
+            foreach ($rows as $k => $row){
+                if($k == '_id'){
+                    $data[$index]['id'] = $row;
+                }
+                if($k == '_source'){
+                    foreach ($rows[$k] as $key => $val){
+                        $data[$index][$key] = $val;
+                    }
+                }
+            }
+        }
+
+        foreach ($data as $k => $row){
+            if(is_array($row)){
+                $data[$k] = (object)$row;
+            }
+        }
+        return $data;
     }
 
     public function getPagination($count, $limit)
