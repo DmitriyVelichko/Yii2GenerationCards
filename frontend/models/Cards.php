@@ -65,6 +65,13 @@ class Cards extends ActiveRecord implements iCardsFront
 
     public function findLastRows($limit)
     {
+        //ElasticSearch
+        $cards = $this->elasticLastRows($limit);
+        if(!empty($cards)){
+            return $cards;
+        }
+
+        //Ну а если не сработает то сработает обычный поиск
         $query = self::find()
             ->select([
                 'id',
@@ -78,19 +85,42 @@ class Cards extends ActiveRecord implements iCardsFront
         }
         $query->orderBy('id DESC');
 
-        //Подключил сюда поиск через эластик, если он не работает то сработает обычный поиск
-        $cards = $this->getElasticLastRow();
-
         if($this->count = $query->count()){
-            $this->count = count($cards);
             $this->pages = $this->getPagination($this->count,$limit);
         }
 
-        if(empty($cards)){
-            $cards = $query->offset($this->pages->offset)->limit($this->pages->limit)->all();
+        $cards = $query->offset($this->pages->offset)->limit($this->pages->limit)->all();
+
+        return $cards;
+    }
+
+    public function elasticLastRows($limit)
+    {
+        $cards = $this->getElasticLastRow();
+        $count = count($cards);
+        $cards = $this->sortAndSlice($cards,$limit);
+
+        if($count > 0){
+            $this->count = $count;
+            $this->pages = $this->getPagination($this->count,$limit);
         }
 
         return $cards;
+    }
+
+    public function sortAndSlice($data,$limit){
+        $count = count($data);
+        if($_GET['page'] < 2 || !isset($_GET['page'])){
+            $page = 1;
+            $offset = 0;
+        } else {
+            $page = $_GET['page'];
+        }
+        if(!isset($offset)){
+            $offset = ($count + $limit)/$page;
+        }
+        $output = array_slice($data, floor($offset), $limit);
+        return $output;
     }
 
     public function getElasticLastRow(){
@@ -114,6 +144,12 @@ class Cards extends ActiveRecord implements iCardsFront
                 $data[$k] = (object)$row;
             }
         }
+        foreach ($data as $k => $row){
+            $data[$row->id] = (object)$row;
+            unset($data[$k]);
+        }
+        arsort($data);
+
         return $data;
     }
 
