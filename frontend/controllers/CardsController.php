@@ -2,6 +2,7 @@
 
 namespace frontend\controllers;
 
+use common\controllers\ElasticController;
 use Yii;
 use yii\web\HttpException;
 use frontend\models\Cards;
@@ -16,6 +17,7 @@ class CardsController extends MainController
     {
         parent::__construct($id, $module, $config);
         $this->model = new Cards;
+        $this->elastic = new ElasticController();
     }
 
     public function actionIndex()
@@ -44,9 +46,9 @@ class CardsController extends MainController
         $id = $card->getAttribute('id');
 
         if(!isset($_COOKIE['userCards'.$id])) {
-            $cookie_name = 'userCards'.$id;
-            $cookie_value = md5('value_'.rand(1,10000));
-            setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/");
+//            $cookie_name = 'userCards'.$id;
+//            $cookie_value = md5('value_'.rand(1,10000));
+//            setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/");
 
             $data['Cards'] = $card->getAttributes();
             unset($data['Cards']['id']);
@@ -55,6 +57,10 @@ class CardsController extends MainController
             $model = \backend\modules\cards\models\Cards::findOne($id);
             $model->load($data,'Cards');
             $model->save();
+
+            if(!empty($id) && !empty($data['Cards'])){
+                $this->elastic->actionUpdateDocument('cards',$id,$data['Cards']);
+            }
         }
     }
 }

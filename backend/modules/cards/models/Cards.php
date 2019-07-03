@@ -7,7 +7,7 @@ use \yii\db\ActiveRecord;
 use common\interfaces\iCardsBack;
 use common\controllers\ElasticController;
 use yii\web\NotFoundHttpException;
-
+use yii\web\UploadedFile;
 
 /**
  * This is the model class for table "cards".
@@ -83,6 +83,12 @@ class Cards extends ActiveRecord implements iCardsBack
 
             $data = Yii::$app->request->post()['Cards'];
             $id = Yii::$app->db->lastInsertID;
+
+            $image = UploadedFile::getInstance($this,'image');
+            $imageName = 'card_'.$id.'.'.$image->getExtension();
+            $image->saveAs(Yii::getAlias('@cardsImgPath').'/'.$imageName);
+            $this->image = $imageName;
+            $this->save();
 
             if(!empty($id) && !empty($data)){
                 $this->elastic->actionCreateDocument('cards',$id,$data);

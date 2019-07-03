@@ -7,5 +7,7 @@
 
     <div class="panel-body">
         <?=$card->description?>
+        <img align="left" style="float:left; margin: 4px 10px 2px 0px; border:1px solid #CCC; padding:6px;" src="<?=Yii::getAlias('@cardsImgUrl').'/'.$card->image?>" />
     </div>
+
 </div>

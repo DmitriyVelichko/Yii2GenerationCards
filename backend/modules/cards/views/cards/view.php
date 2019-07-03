@@ -32,7 +32,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'name',
             'description',
-            'image',
+            [
+                'attribute' => 'image',
+                'value' => Yii::getAlias('@cardsImgUrl').'/'.$model->image,
+                'format' => ['image',['width' => 100, 'height' => 60]],
+            ],
             'countsViews',
         ],
     ]) ?>
