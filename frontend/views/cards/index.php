@@ -19,7 +19,7 @@ use \yii\widgets\LinkPager;
         </div>
 
         <div class="panel-body">
-            <img align="left" style="float:left; margin: 4px 10px 2px 0px; border:1px solid #CCC; padding:6px;" src="<?=Yii::getAlias('@cardsImgUrl').'/'.$card->image?>" />
+            <img width="100" height="60" align="left" style="float:left; margin: 4px 10px 2px 0px; border:1px solid #CCC; padding:6px;" src="<?=Yii::getAlias('@cardsImgUrl').'/'.$card->image?>" />
             <?=$card->description?>
         </div>
     </div>

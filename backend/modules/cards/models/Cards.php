@@ -79,16 +79,30 @@ class Cards extends ActiveRecord implements iCardsBack
 
     public function createRow()
     {
-        if ($this->load(Yii::$app->request->post()) && $this->save()) {
+        $data = Yii::$app->request->post();
+        if(isset($data['Cards']['image']) && empty($data['Cards']['image'])){
+            unset($data['Cards']['image']);
+        }
+        if(isset($data['Cards']['countsViews']) && empty($data['Cards']['countsViews'])){
+            $data['Cards']['countsViews'] = 0;
+        }
+
+        if ($this->load($data) && $this->save()) {
 
             $data = Yii::$app->request->post()['Cards'];
             $id = Yii::$app->db->lastInsertID;
 
             $image = UploadedFile::getInstance($this,'image');
-            $imageName = 'card_'.$id.'.'.$image->getExtension();
-            $image->saveAs(Yii::getAlias('@cardsImgPath').'/'.$imageName);
-            $this->image = $imageName;
-            $this->save();
+            if(!empty($image)){
+                $imageName = 'card_'.$id.'.'.$image->getExtension();
+                $image->saveAs(Yii::getAlias('@cardsImgPath').'/'.$imageName);
+                $this->image = $imageName;
+                $this->save();
+
+                if(!empty($imageName)){
+                    $data['image'] = $imageName;
+                }
+            }
 
             if(!empty($id) && !empty($data)){
                 $this->elastic->actionCreateDocument('cards',$id,$data);
@@ -103,9 +117,29 @@ class Cards extends ActiveRecord implements iCardsBack
     {
         $model = $this->findModel($id);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $data = Yii::$app->request->post();
+        if(isset($data['Cards']['image']) && empty($data['Cards']['image'])){
+            unset($data['Cards']['image']);
+        }
+        if(isset($data['Cards']['countsViews']) && empty($data['Cards']['countsViews'])){
+            $data['Cards']['countsViews'] = 0;
+        }
+
+        if ($model->load($data) && $model->save()) {
 
             $data = Yii::$app->request->post()['Cards'];
+
+            $image = UploadedFile::getInstance($model,'image');
+            if(!empty($image)){
+                $imageName = 'card_'.$id.'.'.$image->getExtension();
+                $image->saveAs(Yii::getAlias('@cardsImgPath').'/'.$imageName);
+                $model->image = $imageName;
+                $model->save();
+
+                if(!empty($imageName)){
+                    $data['image'] = $imageName;
+                }
+            }
 
             if(!empty($id) && !empty($data)){
                 $this->elastic->actionUpdateDocument('cards',$id,$data);
