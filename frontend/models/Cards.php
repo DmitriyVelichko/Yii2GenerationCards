@@ -65,31 +65,34 @@ class Cards extends ActiveRecord implements iCardsFront
 
     public function findLastRows($limit)
     {
+        $cards = [];
         //ElasticSearch
-        $cards = $this->elasticLastRows($limit);
-        if(!empty($cards)){
-            return $cards;
-        }
+        try {
+            $cards = $this->elasticLastRows($limit);
+            if(!empty($cards)){
+                return $cards;
+            }
+        } catch (\Throwable $e) {
+            //Ну а если не сработает то сработает обычный поиск
+            $query = self::find()
+                ->select([
+                    'id',
+                    'name',
+                    'description',
+                    'image',
+                    'countsViews'
+                ]);
+            if(!empty($limit)){
+                $query->limit($limit);
+            }
+            $query->orderBy('id DESC');
 
-        //Ну а если не сработает то сработает обычный поиск
-        $query = self::find()
-            ->select([
-                'id',
-                'name',
-                'description',
-                'image',
-                'countsViews'
-            ]);
-        if(!empty($limit)){
-            $query->limit($limit);
-        }
-        $query->orderBy('id DESC');
+            if($this->count = $query->count()){
+                $this->pages = $this->getPagination($this->count,$limit);
+            }
 
-        if($this->count = $query->count()){
-            $this->pages = $this->getPagination($this->count,$limit);
+            $cards = $query->offset($this->pages->offset)->limit($this->pages->limit)->all();
         }
-
-        $cards = $query->offset($this->pages->offset)->limit($this->pages->limit)->all();
 
         return $cards;
     }

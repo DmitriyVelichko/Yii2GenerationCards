@@ -105,10 +105,13 @@ class Cards extends ActiveRecord implements iCardsBack
             }
 
             if(!empty($id) && !empty($data)){
-                $this->elastic->actionCreateDocument('cards',$id,$data);
+                try {
+                    $this->elastic->actionCreateDocument('cards',$id,$data);
+                    return true;
+                } catch (\Throwable $e) {
+                    return true;
+                }
             }
-
-            return true;
         }
         return false;
     }
@@ -142,7 +145,11 @@ class Cards extends ActiveRecord implements iCardsBack
             }
 
             if(!empty($id) && !empty($data)){
-                $this->elastic->actionUpdateDocument('cards',$id,$data);
+                try {
+                    $this->elastic->actionUpdateDocument('cards',$id,$data);
+                } catch (\Throwable $e) {
+                    //Элайстик сервер не включен
+                }
             }
 
             return [

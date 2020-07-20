@@ -59,7 +59,11 @@ class CardsController extends MainController
             $model->save();
 
             if(!empty($id) && !empty($data['Cards'])){
-                $this->elastic->actionUpdateDocument('cards',$id,$data['Cards']);
+                try {
+                    $this->elastic->actionUpdateDocument('cards',$id,$data['Cards']);
+                } catch (\Throwable $e) {
+                    // Эластик не запущен
+                }
             }
         }
     }
